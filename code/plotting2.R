@@ -13,7 +13,7 @@ deaths.url <- "https://github.com/CSSEGISandData/COVID-19/raw/master/csse_covid_
 confirmed <- read_csv(confirmed.url)
 deaths <- read_csv(deaths.url)
 
-
+# Tidy raw data
 confirmed <- tidy.data(confirmed, "confirmed")
 deaths <- tidy.data(deaths, "death")  
 paste("Lastest date", max(confirmed$date))
@@ -40,7 +40,7 @@ corona <- corona.data %>%
   select(1:3, 7, everything())
 
 #countries <- sample(unique(corona$Country.Region), 15)
-countries <- c("United Kingdom", "Spain", "France", "Italy", "US", "Sweden")
+countries <- c("United Kingdom", "France",  "US", "Sweden", "Spain", "Italy", "Greece", "Korea, South")
 #countries <- "Italy"
 
 case.type <- "death"
@@ -48,7 +48,13 @@ case.type <- "death"
 ##### PLOTS #####
 
 corona %>%
-  filter(type==case.type, Country %in% countries, date>"2020-02-01") %>%
+  filter(type==case.type, Country %in% countries, date>"2020-02-20") %>%
   ggplot(aes(x=date, y=log(cum.cases.rel))) +
+  ggtitle(case.type) +
+  geom_smooth(aes(col=Country, linetype=Country), size=1) 
+
+corona %>%
+  filter(type==case.type, Country %in% countries, date>"2020-02-20") %>%
+  ggplot(aes(x=log(cum.cases), y=log(cases))) +
   ggtitle(case.type) +
   geom_smooth(aes(col=Country, linetype=Country), size=1) 
