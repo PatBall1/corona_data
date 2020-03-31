@@ -31,16 +31,17 @@ pop <- as_tibble(pop) %>%
 
 corona.data <- left_join(corona.data, pop, by="iso3n")
 
+
 corona <- corona.data %>%
   select(-4, -5) %>%
   group_by(Prov.State, Country, type) %>%
-  mutate(cum.cases=cumsum(cases)) %>%
-  mutate(cases.rel=cases/population.2020) %>%
+  mutate(new.cases=cum.cases-lag(cum.cases, n=1, default=0)) %>%
+  mutate(new.cases.rel=new.cases/population.2020) %>%
   mutate(cum.cases.rel=cum.cases/population.2020) %>%
   select(1:3, 7, everything())
 
 #countries <- sample(unique(corona$Country.Region), 15)
-countries <- c("United Kingdom", "France",  "US", "Sweden", "Spain", "Italy", "Greece", "Korea, South")
+countries <- c("United Kingdom", "France", "Spain", "Italy", "US")
 #countries <- "Italy"
 
 case.type <- "death"
@@ -48,13 +49,13 @@ case.type <- "death"
 ##### PLOTS #####
 
 corona %>%
-  filter(type==case.type, Country %in% countries, date>"2020-02-20") %>%
+  filter(is.na(Prov.State), type==case.type, Country %in% countries, date>"2020-02-20") %>%
   ggplot(aes(x=date, y=log(cum.cases.rel))) +
   ggtitle(case.type) +
-  geom_smooth(aes(col=Country, linetype=Country), size=1) 
+  geom_line(aes(col=Country, linetype=Country), size=1) 
 
 corona %>%
   filter(type==case.type, Country %in% countries, date>"2020-02-20") %>%
-  ggplot(aes(x=log(cum.cases), y=log(cases))) +
+  ggplot(aes(x=log(cum.cases.rel), y=(cases.rel))) +
   ggtitle(case.type) +
   geom_smooth(aes(col=Country, linetype=Country), size=1) 
